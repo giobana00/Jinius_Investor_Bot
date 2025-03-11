@@ -1,12 +1,35 @@
-import requests
+import matplotlib.pyplot as plt
+import subprocess
+import matplotlib.font_manager as fm
+import os
 import yfinance as yf
 import pandas as pd
-import matplotlib.pyplot as plt
-import os
+import requests
 
-# 🚀 Telegram 설정 (환경 변수를 사용하지 않고 직접 입력)
-TELEGRAM_BOT_TOKEN = "7756935846:AAGbwXzNvkjliKDeOhYLJjoE_c45P26cBSM"  # 🔹 직접 입력
-TELEGRAM_CHAT_ID = "6594623274"  # 🔹 직접 입력
+# 🚀 GitHub Actions에서 한글 폰트 설치 및 캐시 업데이트
+def install_nanum_font():
+    print("🚀 한글 폰트 설치 중...")
+    subprocess.run(["sudo", "apt-get", "install", "-y", "fonts-nanum"], check=True)
+    subprocess.run(["fc-cache", "-fv"], check=True)  # 🚀 폰트 캐시 업데이트
+    print("✅ 한글 폰트 설치 완료!")
+
+    # 🚀 폰트 경로 확인 후 적용
+    font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
+
+    if os.path.exists(font_path):
+        fm.fontManager.addfont(font_path)  # 폰트 추가
+        plt.rc("font", family="NanumGothic")
+        print(f"✅ 한글 폰트 적용 완료! ({font_path})")
+    else:
+        print("❌ 한글 폰트 적용 실패! 기본 폰트 사용")
+    
+    # 🚀 `matplotlib` 폰트 캐시 강제 업데이트
+    fm._load_fontmanager()
+    print("✅ `matplotlib` 폰트 캐시 업데이트 완료!")
+
+# 🚀 한글 폰트 설치 실행
+install_nanum_font()
+plt.rcParams["axes.unicode_minus"] = False  # 마이너스 기호 깨짐 방지
 
 # 🚀 1. TLT 데이터 가져오기 & RSI 계산
 def get_tlt_data(period="3mo"):
@@ -66,12 +89,16 @@ plt.xlabel("날짜")
 plt.ylabel("RSI")
 plt.grid()
 
-# 🚀 6. 이미지 저장 경로 변경 (GitHub Actions에서 사용 가능하도록 수정)
+# 🚀 6. 이미지 저장 경로 변경
 image_path = "/tmp/tlt_rsi_chart.png"
 plt.savefig(image_path)
 plt.close()
 
-# 🚀 7. 텔레그램 메시지 전송 함수
+# 🚀 7. Telegram 설정 (환경변수 사용 추천)
+TELEGRAM_BOT_TOKEN = "7756935846:AAGbwXzNvkjliKDeOhYLJjoE_c45P26cBSM"
+TELEGRAM_CHAT_ID = "6594623274"
+
+# 🚀 8. 텔레그램 메시지 전송 함수
 def send_telegram_text(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     params = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
@@ -81,9 +108,14 @@ def send_telegram_text(message):
     else:
         print(f"❌ Telegram 메시지 전송 실패! 오류 메시지: {response.text}")
 
-# 🚀 8. 텔레그램 이미지 전송 함수
+# 🚀 9. 텔레그램 이미지 전송 함수
 def send_telegram_image(image_path, caption):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
+    
+    if not os.path.exists(image_path):
+        print(f"❌ 오류: 이미지 파일이 존재하지 않습니다! ({image_path})")
+        return
+
     try:
         with open(image_path, "rb") as img:
             files = {"photo": img}
@@ -96,6 +128,6 @@ def send_telegram_image(image_path, caption):
     except Exception as e:
         print(f"❌ 오류 발생: {e}")
 
-# 🚀 9. 텔레그램으로 데이터 전송 실행
+# 🚀 10. 텔레그램으로 데이터 전송 실행
 send_telegram_text(message)
 send_telegram_image(image_path, "📊 TLT RSI 그래프 업데이트")
