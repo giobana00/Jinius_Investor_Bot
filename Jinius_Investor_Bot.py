@@ -6,17 +6,6 @@ import yfinance as yf
 import pandas as pd
 import requests
 
-# 🚀 GitHub Actions에서 한글 폰트 설치
-def install_nanum_font():
-    print("🚀 한글 폰트 설치 중...")
-    subprocess.run(["sudo", "apt-get", "install", "-y", "fonts-nanum"], check=True)
-    subprocess.run(["fc-cache", "-fv"], check=True)  # 🚀 폰트 캐시 업데이트
-    print("✅ 한글 폰트 설치 완료!")
-
-import subprocess
-import matplotlib.font_manager as fm
-import matplotlib.pyplot as plt
-
 # 🚀 GitHub Actions에서 한글 폰트 설치 및 캐시 업데이트
 def install_nanum_font():
     print("🚀 한글 폰트 설치 중...")
@@ -24,10 +13,10 @@ def install_nanum_font():
     subprocess.run(["fc-cache", "-fv"], check=True)  # 🚀 폰트 캐시 업데이트
     print("✅ 한글 폰트 설치 완료!")
 
-    # 🚀 폰트 경로 수동 설정 (GitHub Actions에서 자동 탐색이 안 될 수도 있음)
+    # 🚀 폰트 경로 확인 후 적용
     font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 
-    if font_path and os.path.exists(font_path):
+    if os.path.exists(font_path):
         fm.fontManager.addfont(font_path)  # 폰트 추가
         plt.rc("font", family="NanumGothic")
         print(f"✅ 한글 폰트 적용 완료! ({font_path})")
@@ -35,23 +24,11 @@ def install_nanum_font():
         print("❌ 한글 폰트 적용 실패! 기본 폰트 사용")
     
     # 🚀 `matplotlib` 폰트 캐시 강제 업데이트
-    fm._load_fontmanager()
+    fm.findSystemFonts(fontpaths=None, fontext='ttf')
     print("✅ `matplotlib` 폰트 캐시 업데이트 완료!")
 
 # 🚀 한글 폰트 설치 실행
 install_nanum_font()
-plt.rcParams["axes.unicode_minus"] = False  # 마이너스 기호 깨짐 방지
-
-
-
-
-        return font_path
-    else:
-        print("❌ 한글 폰트 설치 실패! 기본 폰트 사용")
-        return None
-
-# 🚀 한글 폰트 설치 실행
-nanum_font = install_nanum_font()
 plt.rcParams["axes.unicode_minus"] = False  # 마이너스 기호 깨짐 방지
 
 # 🚀 1. TLT 데이터 가져오기 & RSI 계산
@@ -117,9 +94,9 @@ image_path = "/tmp/tlt_rsi_chart.png"
 plt.savefig(image_path)
 plt.close()
 
-# 🚀 7. Telegram 설정 (보안상 환경변수 추천)
-TELEGRAM_BOT_TOKEN = "7756935846:AAGbwXzNvkjliKDeOhYLJjoE_c45P26cBSM"  # 🔹 @BotFather에서 받은 토큰 입력
-TELEGRAM_CHAT_ID = "6594623274"  # 🔹 @userinfobot에서 받은 Chat ID 입력
+# 🚀 7. Telegram 설정 (환경변수 사용 추천)
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "your_token_here")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "your_chat_id_here")
 
 # 🚀 8. 텔레그램 메시지 전송 함수
 def send_telegram_text(message):
