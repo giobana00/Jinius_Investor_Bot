@@ -95,8 +95,17 @@ plt.savefig(image_path)
 plt.close()
 
 # 🚀 7. Telegram 설정 (환경변수 사용 추천)
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "your_token_here")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "your_chat_id_here")
+import requests
+
+TELEGRAM_BOT_TOKEN = "7756935846:AAGbwXzNvkjliKDeOhYLJjoE_c45P26cBSM"
+TELEGRAM_CHAT_ID = "6594623274"
+
+test_message = "🚀 Telegram 테스트 메시지!"
+url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+params = {"chat_id": TELEGRAM_CHAT_ID, "text": test_message}
+
+response = requests.get(url, params=params)
+print(response.json())  # API 응답 확인
 
 # 🚀 8. 텔레그램 메시지 전송 함수
 def send_telegram_text(message):
