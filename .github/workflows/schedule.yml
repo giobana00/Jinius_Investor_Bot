@@ -1,0 +1,24 @@
+name: Run Jinius Investor Bot
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # UTC 기준 0시 = 한국 시간 9시
+  workflow_dispatch:  # 수동 실행 가능
+
+jobs:
+  run_script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: pip install yfinance requests matplotlib pandas
+
+      - name: Run the bot script
+        run: python Jinius_Investor_Bot.py  # 📌 여기에 네 파일 이름 넣기!
