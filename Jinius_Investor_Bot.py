@@ -11,13 +11,13 @@ def install_nanum_font():
     print("🚀 한글 폰트 설치 중...")
     subprocess.run(["sudo", "apt-get", "install", "-y", "fonts-nanum"], check=True)
     subprocess.run(["fc-cache", "-fv"], check=True)  # 🚀 폰트 캐시 업데이트
-    fm._rebuild()  # 🚀 matplotlib 폰트 캐시 재구성
     print("✅ 한글 폰트 설치 완료!")
 
     # 🚀 폰트 자동 탐색 후 적용
     font_path = fm.findfont("NanumGothic")
     if font_path:
         plt.rc("font", family="NanumGothic")
+        plt.rcParams.update({"font.family": "NanumGothic"})  # 🚀 폰트 적용 강제 업데이트
         print(f"✅ 폰트 {font_path} 적용 완료!")
         return font_path
     else:
