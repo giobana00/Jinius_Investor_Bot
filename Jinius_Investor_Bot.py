@@ -77,17 +77,36 @@ message = f"""
 
 print(message)  # 🚀 메시지 확인용 출력
 
-# 🚀 5. RSI 그래프 생성
-plt.figure(figsize=(10,5))
-plt.plot(tlt_1m.index, tlt_1m["RSI"], label="RSI (1개월)", marker="o")
-plt.plot(tlt_3m.index, tlt_3m["RSI"], label="RSI (3개월)", linestyle="dashed")
+# 🚀 5. RSI 그래프 생성 (처음 0이 아닌 값부터 시작)
+plt.figure(figsize=(10, 5))
+
+# 🚀 1개월 데이터: 처음 0이 아닌 값 찾기
+first_nonzero_1m = tlt_1m["RSI"].ne(0).idxmax()  # 첫 번째 0이 아닌 값의 날짜 찾기
+valid_tlt_1m = tlt_1m.loc[first_nonzero_1m:]  # 그 날짜부터 그래프 그리기
+
+# 🚀 3개월 데이터: 처음 0이 아닌 값 찾기
+first_nonzero_3m = tlt_3m["RSI"].ne(0).idxmax()  # 첫 번째 0이 아닌 값의 날짜 찾기
+valid_tlt_3m = tlt_3m.loc[first_nonzero_3m:]  # 그 날짜부터 그래프 그리기
+
+# 🚀 그래프 그리기 (처음 0이 아닌 값 이후부터 시작)
+plt.plot(valid_tlt_1m.index, valid_tlt_1m["RSI"], label="RSI (1개월)", marker="o")
+plt.plot(valid_tlt_3m.index, valid_tlt_3m["RSI"], label="RSI (3개월)", linestyle="dashed")
+
+# 🚀 과매수/과매도 기준선 추가
 plt.axhline(y=70, color="r", linestyle="--", label="과매수 (70)")
 plt.axhline(y=30, color="g", linestyle="--", label="과매도 (30)")
+
 plt.legend()
 plt.title("📊 TLT RSI 추이 (1개월 & 3개월)")
 plt.xlabel("날짜")
 plt.ylabel("RSI")
 plt.grid()
+
+# 🚀 6. 이미지 저장 경로 변경
+image_path = "/tmp/tlt_rsi_chart.png"
+plt.savefig(image_path)
+plt.close()
+
 
 # 🚀 6. 이미지 저장 경로 변경
 image_path = "/tmp/tlt_rsi_chart.png"
