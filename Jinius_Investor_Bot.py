@@ -53,13 +53,13 @@ def get_tlt_data(period="3mo"):
 tlt_1m = get_tlt_data("1mo")
 tlt_3m = get_tlt_data("3mo")
 
-# 🚀 3. 최신 데이터 정리
+# 🚀 3. 최신 데이터 정리 (Series 문제 해결)
 latest = tlt_1m.iloc[-1]
 latest_date = str(latest.name)[:10]
-latest_close = latest["Close"].iloc[0] if isinstance(latest["Close"], pd.Series) else latest["Close"]
-latest_rsi = latest["RSI"].iloc[0] if isinstance(latest["RSI"], pd.Series) else latest["RSI"]
-avg_rsi_1m = tlt_1m["RSI"].mean()
-avg_rsi_3m = tlt_3m["RSI"].mean()
+latest_close = float(latest["Close"])  # 🚀 Series → float 변환
+latest_rsi = float(latest["RSI"])  # 🚀 Series → float 변환
+avg_rsi_1m = float(tlt_1m["RSI"].mean())  # 🚀 평균도 float 변환
+avg_rsi_3m = float(tlt_3m["RSI"].mean())
 
 # 🚀 4. 텔레그램 메시지 생성
 message = f"""
