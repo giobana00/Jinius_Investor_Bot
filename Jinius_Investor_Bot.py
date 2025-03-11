@@ -95,11 +95,10 @@ plt.savefig(image_path)
 plt.close()
 
 # 🚀 7. Telegram 설정 (환경변수 사용 추천)
-import os
+import requests
 
-TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
-
+TELEGRAM_BOT_TOKEN = "7756935846:AAGbwXzNvkjliKDeOhYLJjoE_c45P26cBSM"
+TELEGRAM_CHAT_ID = "6594623274"
 
 url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
 params = {"chat_id": TELEGRAM_CHAT_ID, "text": test_message}
