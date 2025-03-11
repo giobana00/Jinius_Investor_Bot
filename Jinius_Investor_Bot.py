@@ -58,7 +58,7 @@ import matplotlib.font_manager as fm
 import os
 
 # 🚀 한글 폰트 설치 (Google Colab에 적용)
-!apt-get update -qq
+
 !apt-get install -y fonts-nanum
 
 # 🚀 Colab에서 설치한 폰트 경로 설정
