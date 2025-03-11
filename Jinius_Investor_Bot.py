@@ -92,8 +92,8 @@ plt.savefig(image_path)
 plt.close()
 
 # 🚀 7. Telegram 설정 (보안상 환경변수 추천)
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "your_token_here")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "your_chat_id_here")
+TELEGRAM_BOT_TOKEN = "7756935846:AAGbwXzNvkjliKDeOhYLJjoE_c45P26cBSM"  # 🔹 @BotFather에서 받은 토큰 입력
+TELEGRAM_CHAT_ID = "6594623274"  # 🔹 @userinfobot에서 받은 Chat ID 입력
 
 # 🚀 8. 텔레그램 메시지 전송 함수
 def send_telegram_text(message):
