@@ -1,3 +1,35 @@
+import subprocess
+import matplotlib.font_manager as fm
+import os
+
+# 🚀 GitHub Actions에서 한글 폰트 설치
+def install_nanum_font():
+    print("🚀 한글 폰트 설치 중...")
+    subprocess.run(["sudo", "apt-get", "install", "-y", "fonts-nanum"], check=True)
+    print("✅ 한글 폰트 설치 완료!")
+
+    # 🚀 폰트 경로 확인 후 적용
+    font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
+    if os.path.exists(font_path):
+        fm.fontManager.addfont(font_path)  # 폰트 추가
+        print(f"✅ 폰트 {font_path} 적용 완료!")
+        return font_path
+    else:
+        print("❌ 한글 폰트 설치 실패! 기본 폰트 사용")
+        return None
+
+# 🚀 한글 폰트 설치 실행
+nanum_font = install_nanum_font()
+
+# 🚀 한글 폰트 적용 (설치가 성공하면 사용)
+if nanum_font:
+    plt.rc("font", family="NanumGothic")
+plt.rcParams["axes.unicode_minus"] = False  # 마이너스 기호 깨짐 방지
+
+
+
+
+
 import yfinance as yf
 import pandas as pd
 import matplotlib.pyplot as plt
