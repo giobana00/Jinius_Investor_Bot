@@ -61,7 +61,28 @@ latest_rsi = float(latest["RSI"])  # 🚀 Series → float 변환
 avg_rsi_1m = float(tlt_1m["RSI"].mean())  # 🚀 평균도 float 변환
 avg_rsi_3m = float(tlt_3m["RSI"].mean())
 
-# 🚀 4. 텔레그램 메시지 생성
+# 🚀 4. 미국 2년, 10년, 20년물 채권 종가 가져오기
+def get_bond_prices():
+    tickers = ["^IRX", "^TNX", "TLT"]  # 2년물, 10년물, 20년물 (TLT는 이미 있음)
+    bond_data = yf.download(tickers, period="5d", interval="1d")["Close"].dropna()
+    latest_bond_prices = bond_data.iloc[-1]  # 최신 종가 가져오기
+    return latest_bond_prices
+
+# 🚀 5. 채권 종가 가져오기
+latest_bond_prices = get_bond_prices()
+
+# 🚀 6. 채권 종가 표 정리
+bond_table = f"""
+📊 [미국 국채 종가]
+━━━━━━━━━━━━━━━━━
+📅 날짜: {latest_date}
+🔹 미국 2년물: {latest_bond_prices["^IRX"]:.2f}
+🔹 미국 10년물: {latest_bond_prices["^TNX"]:.2f}
+🔹 미국 20년물 (TLT): {latest_close:.2f}
+━━━━━━━━━━━━━━━━━
+"""
+
+# 🚀 7. 텔레그램 메시지 생성 (RSI + 채권 종가 추가)
 message = f"""
 📊 [미국 20년물 국채 (TLT) RSI 업데이트]
 📅 날짜: {latest_date}
@@ -73,51 +94,38 @@ message = f"""
 
 🔹 RSI > 70 → 과매수 (매도 신호 가능)
 🔹 RSI < 30 → 과매도 (매수 신호 가능)
+
+{bond_table}  # 채권 종가 정보 추가
 """
 
-print(message)  # 🚀 메시지 확인용 출력
+print(message)
 
-# 🚀 5. RSI 그래프 생성 (처음 0이 아닌 값부터 시작)
+# 🚀 8. RSI 그래프에서 값이 있는 곳부터 시작
+tlt_1m_nonzero = tlt_1m[tlt_1m["RSI"].notna()]  # 값이 있는 부분만 가져오기
+tlt_3m_nonzero = tlt_3m[tlt_3m["RSI"].notna()]
+
+# 🚀 9. RSI 그래프 생성
 plt.figure(figsize=(10, 5))
-
-# 🚀 1개월 데이터: 처음 0이 아닌 값 찾기
-first_nonzero_1m = tlt_1m["RSI"].ne(0).idxmax()  # 첫 번째 0이 아닌 값의 날짜 찾기
-valid_tlt_1m = tlt_1m.loc[first_nonzero_1m:]  # 그 날짜부터 그래프 그리기
-
-# 🚀 3개월 데이터: 처음 0이 아닌 값 찾기
-first_nonzero_3m = tlt_3m["RSI"].ne(0).idxmax()  # 첫 번째 0이 아닌 값의 날짜 찾기
-valid_tlt_3m = tlt_3m.loc[first_nonzero_3m:]  # 그 날짜부터 그래프 그리기
-
-# 🚀 그래프 그리기 (처음 0이 아닌 값 이후부터 시작)
-plt.plot(valid_tlt_1m.index, valid_tlt_1m["RSI"], label="RSI (1개월)", marker="o")
-plt.plot(valid_tlt_3m.index, valid_tlt_3m["RSI"], label="RSI (3개월)", linestyle="dashed")
-
-# 🚀 과매수/과매도 기준선 추가
+plt.plot(tlt_1m_nonzero.index, tlt_1m_nonzero["RSI"], label="RSI (1개월)", marker="o")
+plt.plot(tlt_3m_nonzero.index, tlt_3m_nonzero["RSI"], label="RSI (3개월)", linestyle="dashed")
 plt.axhline(y=70, color="r", linestyle="--", label="과매수 (70)")
 plt.axhline(y=30, color="g", linestyle="--", label="과매도 (30)")
-
 plt.legend()
 plt.title("📊 TLT RSI 추이 (1개월 & 3개월)")
 plt.xlabel("날짜")
 plt.ylabel("RSI")
 plt.grid()
 
-# 🚀 6. 이미지 저장 경로 변경
+# 🚀 10. 이미지 저장 경로 변경
 image_path = "/tmp/tlt_rsi_chart.png"
 plt.savefig(image_path)
 plt.close()
 
-
-# 🚀 6. 이미지 저장 경로 변경
-image_path = "/tmp/tlt_rsi_chart.png"
-plt.savefig(image_path)
-plt.close()
-
-# 🚀 7. Telegram 설정 (환경변수 사용 추천)
+# 🚀 11. 텔레그램 설정
 TELEGRAM_BOT_TOKEN = "7756935846:AAGbwXzNvkjliKDeOhYLJjoE_c45P26cBSM"
 TELEGRAM_CHAT_ID = "6594623274"
 
-# 🚀 8. 텔레그램 메시지 전송 함수
+# 🚀 12. 텔레그램 메시지 전송 함수
 def send_telegram_text(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     params = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
@@ -127,7 +135,7 @@ def send_telegram_text(message):
     else:
         print(f"❌ Telegram 메시지 전송 실패! 오류 메시지: {response.text}")
 
-# 🚀 9. 텔레그램 이미지 전송 함수
+# 🚀 13. 텔레그램 이미지 전송 함수
 def send_telegram_image(image_path, caption):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
     
@@ -147,6 +155,6 @@ def send_telegram_image(image_path, caption):
     except Exception as e:
         print(f"❌ 오류 발생: {e}")
 
-# 🚀 10. 텔레그램으로 데이터 전송 실행
+# 🚀 14. 텔레그램으로 데이터 전송 실행
 send_telegram_text(message)
-send_telegram_image(image_path, "📊 TLT RSI 그래프 업데이트")
+send_telegram_image(image_path, "📊 TLT RSI + 채권 종가 업데이트")
