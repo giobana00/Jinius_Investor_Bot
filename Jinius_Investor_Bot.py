@@ -11,12 +11,12 @@ def install_nanum_font():
     print("🚀 한글 폰트 설치 중...")
     subprocess.run(["sudo", "apt-get", "install", "-y", "fonts-nanum"], check=True)
     subprocess.run(["fc-cache", "-fv"], check=True)  # 🚀 폰트 캐시 업데이트
+    fm._rebuild()  # 🚀 matplotlib 폰트 캐시 재구성
     print("✅ 한글 폰트 설치 완료!")
 
-    # 🚀 폰트 경로 확인 후 적용
-    font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
-    if os.path.exists(font_path):
-        fm.fontManager.addfont(font_path)  # 폰트 추가
+    # 🚀 폰트 자동 탐색 후 적용
+    font_path = fm.findfont("NanumGothic")
+    if font_path:
         plt.rc("font", family="NanumGothic")
         print(f"✅ 폰트 {font_path} 적용 완료!")
         return font_path
@@ -50,11 +50,11 @@ def get_tlt_data(period="3mo"):
 tlt_1m = get_tlt_data("1mo")
 tlt_3m = get_tlt_data("3mo")
 
-# 🚀 3. 최신 데이터 정리
+# 🚀 3. 최신 데이터 정리 (Series 문제 해결)
 latest = tlt_1m.iloc[-1]
 latest_date = str(latest.name)[:10]
-latest_close = latest["Close"]
-latest_rsi = latest["RSI"]
+latest_close = latest["Close"].iloc[0] if isinstance(latest["Close"], pd.Series) else latest["Close"]
+latest_rsi = latest["RSI"].iloc[0] if isinstance(latest["RSI"], pd.Series) else latest["RSI"]
 avg_rsi_1m = tlt_1m["RSI"].mean()
 avg_rsi_3m = tlt_3m["RSI"].mean()
 
@@ -86,50 +86,40 @@ plt.xlabel("날짜")
 plt.ylabel("RSI")
 plt.grid()
 
-# 🚀 6. 이미지 저장 경로 변경 (GitHub Actions에서 사용 가능)
+# 🚀 6. 이미지 저장 경로 변경
 image_path = "/tmp/tlt_rsi_chart.png"
 plt.savefig(image_path)
 plt.close()
 
-# 🚀 7. 이미지 파일 확인
-if os.path.exists(image_path):
-    print(f"✅ 이미지 파일이 저장되었습니다: {image_path}")
-else:
-    print("❌ 오류: 이미지 파일이 생성되지 않았습니다!")
-
-# 🚀 8. Telegram 설정 (.env 파일로 관리 추천)
+# 🚀 7. Telegram 설정 (보안상 환경변수 추천)
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "your_token_here")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "your_chat_id_here")
 
-# 🚀 9. 텔레그램 메시지 전송 함수
+# 🚀 8. 텔레그램 메시지 전송 함수
 def send_telegram_text(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     params = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
     response = requests.get(url, params=params)
-    
     if response.status_code == 200:
         print("✅ Telegram 메시지 전송 성공!")
     else:
         print(f"❌ Telegram 메시지 전송 실패! 오류 메시지: {response.text}")
 
-# 🚀 10. 텔레그램 이미지 전송 함수
+# 🚀 9. 텔레그램 이미지 전송 함수
 def send_telegram_image(image_path, caption):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
-    
     try:
         with open(image_path, "rb") as img:
             files = {"photo": img}
             data = {"chat_id": TELEGRAM_CHAT_ID, "caption": caption}
             response = requests.post(url, files=files, data=data)
-        
         if response.status_code == 200:
             print("✅ Telegram 그래프 이미지 전송 성공!")
         else:
             print(f"❌ Telegram 그래프 이미지 전송 실패! 오류 메시지: {response.text}")
-    
     except Exception as e:
         print(f"❌ 오류 발생: {e}")
 
-# 🚀 11. 텔레그램으로 데이터 전송 실행
+# 🚀 10. 텔레그램으로 데이터 전송 실행
 send_telegram_text(message)
 send_telegram_image(image_path, "📊 TLT RSI 그래프 업데이트")
