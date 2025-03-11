@@ -57,9 +57,7 @@ import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 import os
 
-# 🚀 한글 폰트 설치 (Google Colab에 적용)
 
-!apt-get install -y fonts-nanum
 
 # 🚀 Colab에서 설치한 폰트 경로 설정
 font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"  
