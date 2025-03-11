@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt  # 🔹 plt를 미리 import!
 import subprocess
 import matplotlib.font_manager as fm
 import os
