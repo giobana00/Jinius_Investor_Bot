@@ -56,8 +56,8 @@ tlt_3m = get_tlt_data("3mo")
 # 🚀 3. 최신 데이터 정리
 latest = tlt_1m.iloc[-1]
 latest_date = str(latest.name)[:10]
-latest_close = latest["Close"]
-latest_rsi = latest["RSI"]
+latest_close = latest["Close"].iloc[0] if isinstance(latest["Close"], pd.Series) else latest["Close"]
+latest_rsi = latest["RSI"].iloc[0] if isinstance(latest["RSI"], pd.Series) else latest["RSI"]
 avg_rsi_1m = tlt_1m["RSI"].mean()
 avg_rsi_3m = tlt_3m["RSI"].mean()
 
